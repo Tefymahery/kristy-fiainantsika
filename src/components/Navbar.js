@@ -1,159 +1,222 @@
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
+import React, { useState } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  IconButton,
+  TextField,
+  InputAdornment,
+  Box,
+  Menu,
+  MenuItem,
+  Typography,
+  Chip,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  useMediaQuery,
+  CssBaseline,
+} from "@mui/material";
+import { styled } from "@mui/system";
+import { BsSun, BsMoonStars } from "react-icons/bs";
+import { AiOutlineHome, AiOutlineRead, AiOutlineAppstore, AiOutlineSearch, AiOutlineMenu } from "react-icons/ai";
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  background: theme.palette.mode === "dark" ? "#1a1a1a" : "#ffffff",
+  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+}));
 
-function ResponsiveAppBar() {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+const LogoImage = styled("img")({
+  height: "40px",
+  marginRight: "20px",
+});
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
+const MenuButton = styled(Button)(({ theme }) => ({
+  margin: "0 8px",
+  color: theme.palette.mode === "dark" ? "#ffffff" : "#222222",
+  "&:hover": {
+    backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+  },
+}));
+
+const SearchField = styled(TextField)(({ theme }) => ({
+  "& .MuiOutlinedInput-root": {
+    backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+    borderRadius: "20px",
+    "& fieldset": {
+      border: "none",
+    },
+  },
+}));
+
+const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
+  padding: "16px",
+  "&:hover": {
+    backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+  },
+}));
+
+const NavigationMenu = ({ darkMode, setDarkMode }) => {
+  const isMobile = useMediaQuery("(max-width:800px)");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleThemeToggle = () => {
+    setDarkMode(!darkMode); // Toggle dark/light mode
   };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
+
+  const categories = [
+    { name: "Categories 1", description: "description categorie 1", articleCount: 2 },
+    { name: "Categories 2", description: "description categories 2", articleCount: 0 },
+    { name: "Categories 3", description: "description categories 3", articleCount: 5 },
+  ];
+
+  const handleCategoryClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
+    <StyledAppBar position="sticky">
+      <Toolbar>
+        {isMobile && (
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={toggleMobileMenu}
+            sx={{ mr: 2 }}
           >
-            LOGO
-          </Typography>
-
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
+            <AiOutlineMenu />
+          </IconButton>
+        )}
+        <LogoImage
+          src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&w=100&h=100"
+          alt="Logo"
+          onError={(e) => {
+            e.target.src = "https://images.unsplash.com/photo-1533450718592-29d45635f0a9?auto=format&fit=crop&w=100&h=100";
+          }}
+        />
+        {!isMobile && (
+          <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
+            <MenuButton startIcon={<AiOutlineHome />}>Home</MenuButton>
+            <MenuButton startIcon={<AiOutlineRead />}>Articles</MenuButton>
+            <MenuButton
+              startIcon={<AiOutlineAppstore />}
+              onClick={handleCategoryClick}
+              aria-controls="category-menu"
               aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
             >
-              <MenuIcon />
-            </IconButton>
+              Categories
+            </MenuButton>
             <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
+              id="category-menu"
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
               anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
+                vertical: "bottom",
+                horizontal: "left",
               }}
-              keepMounted
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
+                vertical: "top",
+                horizontal: "left",
               }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{ display: { xs: 'block', md: 'none' } }}
+              PaperProps={{
+                elevation: 3,
+                sx: {
+                  width: "300px",
+                  maxHeight: "400px",
+                  overflow: "auto",
+                },
+              }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
-                </MenuItem>
+              {categories.map((category, index) => (
+                <StyledMenuItem key={index} onClick={handleClose}>
+                  <Box sx={{ width: "100%" }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {category.name}
+                      </Typography>
+                      <Chip
+                        label={`${category.articleCount} articles`}
+                        size="small"
+                        color={category.articleCount > 0 ? "primary" : "default"}
+                        sx={{ borderRadius: "12px" }}
+                      />
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      {category.description}
+                    </Typography>
+                  </Box>
+                </StyledMenuItem>
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
+        )}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <SearchField
+            size="small"
+            placeholder="Search..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AiOutlineSearch />
+                </InputAdornment>
+              ),
             }}
-          >
-            LOGO
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-        </Toolbar>
-      </Container>
-    </AppBar>
+            sx={{ width: isMobile ? "150px" : "250px" }}
+          />
+          <IconButton onClick={handleThemeToggle} sx={{ color: darkMode ? "#fff" : "#000" }} aria-label="toggle theme">
+            {darkMode ? <BsSun /> : <BsMoonStars />}
+          </IconButton>
+        </Box>
+      </Toolbar>
+
+      <Drawer
+        anchor="left"
+        open={mobileMenuOpen}
+        onClose={toggleMobileMenu}
+        PaperProps={{
+          sx: {
+            width: 250,
+            backgroundColor: darkMode ? "#1a1a1a" : "#ffffff",
+          },
+        }}
+      >
+        <List>
+          <ListItemButton>
+            <ListItemIcon>
+              <AiOutlineHome />
+            </ListItemIcon>
+            <ListItemText primary="Home" />
+          </ListItemButton>
+          <ListItemButton>
+            <ListItemIcon>
+              <AiOutlineRead />
+            </ListItemIcon>
+            <ListItemText primary="Articles" />
+          </ListItemButton>
+          <ListItemButton onClick={handleCategoryClick}>
+            <ListItemIcon>
+              <AiOutlineAppstore />
+            </ListItemIcon>
+            <ListItemText primary="Categories" />
+          </ListItemButton>
+        </List>
+
+      </Drawer>
+    </StyledAppBar>
   );
-}
-export default ResponsiveAppBar;
+};
+
+export default NavigationMenu;
