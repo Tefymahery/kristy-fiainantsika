@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTheme } from "@mui/material/styles";
 import {
   AppBar,
   Toolbar,
@@ -84,6 +85,8 @@ const NavigationMenu = ({ darkMode, setDarkMode }) => {
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
+  const theme = useTheme();
+  //console.log("Thème dans un autre composant :", theme);  // Devrait afficher le thème sans problème
 
   return (
     <StyledAppBar position="sticky">
