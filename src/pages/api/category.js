@@ -1,5 +1,5 @@
 // backend/controllers/categoryController.js
-const Categorie = require('../models/Categorie');
+const Categorie = require('../../backend/models/Categorie');
 
 // Créer une nouvelle catégorie
 exports.createCategorie = async (req, res) => {
