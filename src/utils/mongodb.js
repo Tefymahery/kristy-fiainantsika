@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+mongoose.set('maxTimeMS', 5000); // Limite les requêtes MongoDB à 5 second
 
 let isConnected = false; // Garder une trace de la connexion
 
