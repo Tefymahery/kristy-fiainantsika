@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 // Créer un nouvel utilisateur
-exports.createUser = async (req, res) => {
+const createUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
     const user = new User({ name, email, password, role });
@@ -15,7 +15,7 @@ exports.createUser = async (req, res) => {
 };
 
 // Récupérer tous les utilisateurs
-exports.getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);
@@ -25,17 +25,16 @@ exports.getAllUsers = async (req, res) => {
 };
 
 // Modifier un utilisateur
-exports.updateUser = async (req, res) => {
+const updateUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.query.id);
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
 
-    // Mise à jour des champs
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    user.password = req.body.password || user.password; // Assurez-vous de hasher le mot de passe si nécessaire
+    user.password = req.body.password || user.password; // Hachage nécessaire
     user.role = req.body.role || user.role;
 
     await user.save();
@@ -46,9 +45,9 @@ exports.updateUser = async (req, res) => {
 };
 
 // Supprimer un utilisateur
-exports.deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    const deletedUser = await User.findByIdAndDelete(req.query.id);
     if (!deletedUser) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
@@ -58,16 +57,14 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-
-// Exemple de mise à jour de l'état "isActive" dans le contrôleur
-exports.updateUserStatus = async (req, res) => {
+// Mettre à jour le statut de l'utilisateur
+const updateUserStatus = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.query.id);
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
 
-    // Mise à jour du statut "isActive" de l'utilisateur
     user.isActive = req.body.isActive;
     await user.save();
 
@@ -76,3 +73,26 @@ exports.updateUserStatus = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+// Handler API principal
+export default async function handler(req, res) {
+  const { method } = req;
+
+  switch (method) {
+    case 'GET':
+      await getAllUsers(req, res);
+      break;
+    case 'POST':
+      await createUser(req, res);
+      break;
+    case 'PUT':
+      await updateUser(req, res);
+      break;
+    case 'DELETE':
+      await deleteUser(req, res);
+      break;
+    default:
+      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+      res.status(405).end(`Méthode ${method} non autorisée`);
+  }
+}

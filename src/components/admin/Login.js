@@ -155,6 +155,8 @@ const LoginComponent = () => {
         router.push("/admin/dashboard"); // Changez "/dashboard" avec le chemin vers votre tableau de bord
       } else {
         // Gestion des erreurs renvoyées par le backend
+        const errorData = await response.json();
+        console.error('Erreur:', errorData);
         setSnackbar({
           open: true,
           message: data.msg || "Login failed. Please try again.",
