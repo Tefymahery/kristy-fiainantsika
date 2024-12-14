@@ -17,6 +17,7 @@ const createUser = async (req, res) => {
 // Récupérer tous les utilisateurs
 const getAllUsers = async (req, res) => {
   try {
+    console.log('Requête API reçue :', req.method);
     const users = await User.find();
     res.json(users);
   } catch (err) {
@@ -80,6 +81,7 @@ export default async function handler(req, res) {
 
   switch (method) {
     case 'GET':
+      console.time('API/user execution');
       await getAllUsers(req, res);
       break;
     case 'POST':
