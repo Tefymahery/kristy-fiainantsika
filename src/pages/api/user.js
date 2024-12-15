@@ -1,3 +1,4 @@
+import { connectToDatabase } from '../../utils/mongodb';
 const User = require('../../backend/models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -77,12 +78,14 @@ const updateUserStatus = async (req, res) => {
 
 // Handler API principal
 export default async function handler(req, res) {
+  // Connectez-vous à MongoDB avant toute opération
+  await connectToDatabase();
   const { method } = req;
 
+  console.time('API/user execution');
   switch (method) {
     case 'GET':
-      console.time('API/user execution');
-      await getAllUsers(req, res);
+            await getAllUsers(req, res);
       break;
     case 'POST':
       await createUser(req, res);
