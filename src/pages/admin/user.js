@@ -26,6 +26,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 const AdminUserPage = () => {
   const [users, setUsers] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
 
   const fetchUsers = async () => {
@@ -46,13 +48,16 @@ const AdminUserPage = () => {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (userId) => {
-    try {
-      await axios.delete(`/api/user/${userId}`);
-      fetchUsers();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-    }
+  const handleDelete = (userId) => {
+    setConfirmAction(() => async () => {
+      try {
+        await axios.delete(`/api/user?id=${userId}`);
+        fetchUsers();
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
+    });
+    setIsConfirmDialogOpen(true);
   };
 
   const handleDialogClose = () => {
@@ -60,18 +65,21 @@ const AdminUserPage = () => {
     setCurrentUser(null);
   };
 
-  const handleSave = async () => {
-    try {
-      if (currentUser._id) {
-        await axios.put(`/api/user/${currentUser._id}`, currentUser);
-      } else {
-        await axios.post('/api/user', currentUser);
+  const handleSave = () => {
+    setConfirmAction(() => async () => {
+      try {
+        if (currentUser._id) {
+          await axios.put(`/api/user`, currentUser, { params: { id: currentUser._id } });
+        } else {
+          await axios.post('/api/user', currentUser);
+        }
+        fetchUsers();
+        handleDialogClose();
+      } catch (error) {
+        console.error('Error saving user:', error);
       }
-      fetchUsers();
-      handleDialogClose();
-    } catch (error) {
-      console.error('Error saving user:', error);
-    }
+    });
+    setIsConfirmDialogOpen(true);
   };
 
   const handleChange = (e) => {
@@ -86,6 +94,19 @@ const AdminUserPage = () => {
     } catch (error) {
       console.error('Error updating user status:', error);
     }
+  };
+
+  const handleConfirm = () => {
+    if (confirmAction) {
+      confirmAction();
+    }
+    setIsConfirmDialogOpen(false);
+    setConfirmAction(null);
+  };
+
+  const handleCancelConfirm = () => {
+    setIsConfirmDialogOpen(false);
+    setConfirmAction(null);
   };
 
   return (
@@ -117,6 +138,7 @@ const AdminUserPage = () => {
                   <Switch
                     checked={user.isActive}
                     onChange={(e) => handleToggleActive(user._id, e.target.checked)}
+                    disabled={user.role === 'admin'} // Désactive le Switch si l'utilisateur est un admin
                   />
                 </TableCell>
                 <TableCell>
@@ -186,6 +208,22 @@ const AdminUserPage = () => {
           </Button>
           <Button onClick={handleSave} color="primary">
             Enregistrer
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={isConfirmDialogOpen} onClose={handleCancelConfirm}>
+        <DialogTitle>Confirmer l action</DialogTitle>
+        <DialogContent>
+          <Typography>Êtes-vous sûr de vouloir continuer ?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelConfirm} color="secondary">
+            Annuler
+          </Button>
+          <Button onClick={handleConfirm} color="primary">
+            Confirmer
           </Button>
         </DialogActions>
       </Dialog>

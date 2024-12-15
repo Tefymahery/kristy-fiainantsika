@@ -59,23 +59,6 @@ const deleteUser = async (req, res) => {
   }
 };
 
-// Mettre à jour le statut de l'utilisateur
-const updateUserStatus = async (req, res) => {
-  try {
-    const user = await User.findById(req.query.id);
-    if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
-    }
-
-    user.isActive = req.body.isActive;
-    await user.save();
-
-    res.status(200).json({ message: 'Statut de l\'utilisateur mis à jour avec succès', user });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
 // Handler API principal
 export default async function handler(req, res) {
   // Connectez-vous à MongoDB avant toute opération
@@ -91,7 +74,7 @@ export default async function handler(req, res) {
       await createUser(req, res);
       break;
     case 'PUT':
-      await updateUser(req, res);
+      await updateUser(req, res); // Mise à jour des autres données de l'utilisateur
       break;
     case 'DELETE':
       await deleteUser(req, res);
