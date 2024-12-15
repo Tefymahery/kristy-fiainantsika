@@ -9,6 +9,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
   Paper,
   Button,
   IconButton,
@@ -135,19 +136,25 @@ const AdminUserPage = () => {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.role}</TableCell>
                 <TableCell>
+                  <Tooltip title="Etat de l'utilisateur" arrow>
                   <Switch
                     checked={user.isActive}
                     onChange={(e) => handleToggleActive(user._id, e.target.checked)}
                     disabled={user.role === 'admin'} // Désactive le Switch si l'utilisateur est un admin
                   />
+                  </Tooltip>
                 </TableCell>
                 <TableCell>
+                  <Tooltip title="Mofidier utilisateur" arrow>
                   <IconButton color="primary" onClick={() => handleEdit(user)}>
                     <EditIcon />
                   </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Supprimer l utilisateur" arrow>
                   <IconButton color="secondary" onClick={() => handleDelete(user._id)}>
                     <DeleteIcon />
                   </IconButton>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}

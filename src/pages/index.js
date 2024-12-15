@@ -1,5 +1,6 @@
 import { Container, Typography, Grid } from '@mui/material'
 import Card from '../components/Card';
+import VideoComponent from '@/components/VideoComponent';
 export default function Home() {
   return (
     <Container>
@@ -13,10 +14,8 @@ export default function Home() {
         <Grid item xs={12} md={4}>
           <Card />
         </Grid>
-        <Grid item xs={12} md={4}>
-          <Card />
-        </Grid>
       </Grid>
+      <VideoComponent />
     </Container>
   );
 }
