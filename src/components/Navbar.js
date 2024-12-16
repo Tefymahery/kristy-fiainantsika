@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRouter } from 'next/router';
 import { useTheme } from "@mui/material/styles";
 import {
   AppBar,
@@ -64,6 +65,13 @@ const NavigationMenu = ({ darkMode, setDarkMode }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const router = useRouter();
+
+  const handleClickHome = () => {
+    console.log("Navigating to /articles"); // Ajoute un log pour vérifier
+    router.push('/articles');
+  };
+
   const handleThemeToggle = () => {
     setDarkMode(!darkMode); // Toggle dark/light mode
   };
@@ -111,7 +119,7 @@ const NavigationMenu = ({ darkMode, setDarkMode }) => {
         />
         {!isMobile && (
           <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-            <MenuButton startIcon={<AiOutlineHome />}>Home</MenuButton>
+            <MenuButton onClick={handleClickHome} startIcon={<AiOutlineHome />}>Home</MenuButton>
             <MenuButton startIcon={<AiOutlineRead />}>Articles</MenuButton>
             <MenuButton
               startIcon={<AiOutlineAppstore />}
@@ -197,12 +205,14 @@ const NavigationMenu = ({ darkMode, setDarkMode }) => {
         }}
       >
         <List>
+          
           <ListItemButton>
             <ListItemIcon>
               <AiOutlineHome />
             </ListItemIcon>
             <ListItemText primary="Home" />
           </ListItemButton>
+          
           <ListItemButton>
             <ListItemIcon>
               <AiOutlineRead />

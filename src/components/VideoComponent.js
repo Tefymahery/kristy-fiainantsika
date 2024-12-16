@@ -6,7 +6,7 @@ const VideoComponent = () => {
     height: '390',
     width: '640',
     playerVars: {
-      autoplay: 1, // Lancer la vidéo automatiquement
+      autoplay: 0, // Lancer la vidéo automatiquement
     },
   };
 

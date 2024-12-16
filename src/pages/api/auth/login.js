@@ -2,13 +2,14 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../../../backend/models/User';
 import { connectToDatabase } from '../../../utils/mongodb';
+import { serialize } from 'cookie';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { email, password } = req.body;
 
     try {
-      // Se connecter à la base de données MongoDB
+      // Connexion à MongoDB
       await connectToDatabase();
 
       // Trouver l'utilisateur par email
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ msg: 'User does not exist' });
       }
 
-      // Comparer le mot de passe
+      // Vérification du mot de passe
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({ msg: 'Invalid credentials' });
@@ -27,12 +28,36 @@ export default async function handler(req, res) {
       const token = jwt.sign(
         { userId: user._id, role: user.role, name: user.name },
         process.env.JWT_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: '1h' } // Expiration en 1 heure
       );
 
-      // Réponse avec le token et les informations utilisateur
+      // Ajouter le token, le nom et le rôle dans des cookies sécurisés
+      res.setHeader('Set-Cookie', [
+        serialize('authToken', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          path: '/',
+          maxAge: 60 * 60, // Expire dans 1 heure
+        }),
+        serialize('name', user.name, {
+          httpOnly: false, // Pas besoin de `httpOnly` pour les informations accessibles côté client
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          path: '/',
+          maxAge: 60 * 60, // Expire dans 1 heure
+        }),
+        serialize('role', user.role, {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          path: '/',
+          maxAge: 60 * 60, // Expire dans 1 heure
+        })
+      ]);
+
+      // Répondre avec les informations utilisateur (sans le token)
       res.status(200).json({
-        token,
         user: {
           id: user._id,
           name: user.name,
@@ -45,7 +70,6 @@ export default async function handler(req, res) {
       res.status(500).json({ msg: 'Server error' });
     }
   } else {
-    // Si la méthode HTTP n'est pas POST, on renvoie une erreur 405 (Method Not Allowed)
     res.status(405).json({ msg: 'Method Not Allowed' });
   }
 }

@@ -1,10 +1,9 @@
-
-
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useState, useEffect } from "react";
+import { UserProvider } from "../contexts/UserContext"; // Importer le UserProvider
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }) {
@@ -37,12 +36,14 @@ function MyApp({ Component, pageProps }) {
   //console.log("Thème dans _app.js :", theme); // Vérifier si le thème est bien créé
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
-            <Component {...pageProps} />
-      <Footer />
-    </ThemeProvider>
+    <UserProvider> {/* Envelopper l'application avec UserProvider */}
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
+        <Component {...pageProps} />
+        <Footer />
+      </ThemeProvider>
+    </UserProvider>
   );
 }
 

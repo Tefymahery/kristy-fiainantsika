@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useUser } from "../../contexts/UserContext";  // Importez le hook useUser
 import { useRouter } from 'next/router';
 //import axios from 'axios';  // Si tu utilises axios pour effectuer les requêtes HTTP
 import { useTheme } from "@mui/material/styles";
@@ -73,6 +74,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 const LoginComponent = () => {
   const theme = useTheme(); // Récupère le thème dynamique
   const router = useRouter();
+  const { login } = useUser();  // Désestructurez le login depuis le contexte
   //console.log("Thème dans LoginComponent :", theme.palette.primary); // Debug
   const [formData, setFormData] = useState({
     email: "",
@@ -106,75 +108,70 @@ const LoginComponent = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const newErrors = {};
-
-    //validation  du formulaire
+  
+    // Validation du formulaire
     if (!formData.email) {
       newErrors.email = "Email is required";
     } else if (!validateEmail(formData.email)) {
       newErrors.email = "Invalid email format";
     }
-
+  
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
-
+  
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
+  
     setLoading(true);
     try {
-      // Envoi des données au backend pour la connexion avec fetch
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+        body: JSON.stringify(formData),
       });
-    
-      const data = await response.json(); // Extraire les données de la réponse
-    
-      // Si la connexion est réussie, sauvegarder le token
+  
       if (response.ok) {
-        localStorage.setItem('authToken', data.token); // Stocker le token JWT
-        
+        const data = await response.json();
+        console.log("API response:", data);  // Vérifiez la structure de la réponse ici
+        const { name, role } = data.user;  // Extraire name et role de l'objet user
+  
+        // Appeler la fonction login du contexte pour mettre à jour l'utilisateur dans le contexte
+        login(name, role);
+  
         setSnackbar({
           open: true,
-          message: "Login successful!",
-          severity: "success",
+          message: 'Login successful!',
+          severity: 'success',
         });
-    
-        // Tu peux rediriger l'utilisateur ici (par exemple vers la page d'accueil ou tableau de bord)
-        router.push("/admin/dashboard"); // Changez "/dashboard" avec le chemin vers votre tableau de bord
+  
+        // Rediriger vers le tableau de bord
+        router.push('/admin/dashboard');
       } else {
-        // Gestion des erreurs renvoyées par le backend
         const errorData = await response.json();
-        console.error('Erreur:', errorData);
         setSnackbar({
           open: true,
-          message: data.msg || "Login failed. Please try again.",
-          severity: "error",
+          message: errorData.msg || 'Login failed. Please try again.',
+          severity: 'error',
         });
       }
     } catch (error) {
-      // Gestion des erreurs réseau ou autres exceptions
       setSnackbar({
         open: true,
-        message: error.message || "An unexpected error occurred.",
-        severity: "error",
+        message: error.message || 'An unexpected error occurred.',
+        severity: 'error',
       });
     } finally {
       setLoading(false);
     }
-    
   };
+  
 
   return (
     <Container maxWidth="sm">

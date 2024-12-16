@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { withAuthorization } from '../../utils/authorization'; // Import de l'autorisation centralisée
 import axios from 'axios';
 import {
   Box,
@@ -31,6 +32,7 @@ const AdminUserPage = () => {
   const [confirmAction, setConfirmAction] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
 
+  // Fonction pour récupérer les utilisateurs
   const fetchUsers = async () => {
     try {
       const response = await axios.get('/api/user');
@@ -137,23 +139,23 @@ const AdminUserPage = () => {
                 <TableCell>{user.role}</TableCell>
                 <TableCell>
                   <Tooltip title="Etat de l'utilisateur" arrow>
-                  <Switch
-                    checked={user.isActive}
-                    onChange={(e) => handleToggleActive(user._id, e.target.checked)}
-                    disabled={user.role === 'admin'} // Désactive le Switch si l'utilisateur est un admin
-                  />
+                    <Switch
+                      checked={user.isActive}
+                      onChange={(e) => handleToggleActive(user._id, e.target.checked)}
+                      disabled={user.role === 'admin'}
+                    />
                   </Tooltip>
                 </TableCell>
                 <TableCell>
-                  <Tooltip title="Mofidier utilisateur" arrow>
-                  <IconButton color="primary" onClick={() => handleEdit(user)}>
-                    <EditIcon />
-                  </IconButton>
+                  <Tooltip title="Modifier utilisateur" arrow>
+                    <IconButton color="primary" onClick={() => handleEdit(user)}>
+                      <EditIcon />
+                    </IconButton>
                   </Tooltip>
-                  <Tooltip title="Supprimer l utilisateur" arrow>
-                  <IconButton color="secondary" onClick={() => handleDelete(user._id)}>
-                    <DeleteIcon />
-                  </IconButton>
+                  <Tooltip title="Supprimer l'utilisateur" arrow>
+                    <IconButton color="secondary" onClick={() => handleDelete(user._id)}>
+                      <DeleteIcon />
+                    </IconButton>
                   </Tooltip>
                 </TableCell>
               </TableRow>
@@ -221,7 +223,7 @@ const AdminUserPage = () => {
 
       {/* Confirmation Dialog */}
       <Dialog open={isConfirmDialogOpen} onClose={handleCancelConfirm}>
-        <DialogTitle>Confirmer l action</DialogTitle>
+        <DialogTitle>Confirmer l'action</DialogTitle>
         <DialogContent>
           <Typography>Êtes-vous sûr de vouloir continuer ?</Typography>
         </DialogContent>
@@ -237,5 +239,8 @@ const AdminUserPage = () => {
     </Box>
   );
 };
+
+// Protection de la page
+export const getServerSideProps = withAuthorization(['admin', 'editor']);
 
 export default AdminUserPage;

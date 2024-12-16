@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { parse } from "cookie";
+import jwt from "jsonwebtoken";
 import {
   AppBar,
   Toolbar,
@@ -6,7 +8,6 @@ import {
   Container,
   Grid,
   Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
@@ -14,17 +15,16 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TablePagination,
   Box,
   Chip,
   List,
   ListItem,
   ListItemText,
-  Divider
+  Divider,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { FaBookOpen, FaList, FaPray, FaChurch, FaCross } from "react-icons/fa";
-import { useTheme } from "@mui/material/styles"; // Import pour utiliser le thème
+import { useTheme } from "@mui/material/styles";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: "100%",
@@ -33,45 +33,38 @@ const StyledCard = styled(Card)(({ theme }) => ({
   justifyContent: "center",
   alignItems: "center",
   padding: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper, // Utilise le fond du thème
-  boxShadow: theme.shadows[3], // Ombre en fonction du thème
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[3],
 }));
 
-const ChristianDashboard = () => {
+export default function Dashboard({ user }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const prayerRequests = [
-    { name: "John Doe", request: "Healing for my mother", date: "2024-01-20" },
-    { name: "Jane Smith", request: "Guidance for career decision", date: "2024-01-20" },
-    { name: "Mike Johnson", request: "Family unity", date: "2024-01-20" },
-    { name: "Sarah Williams", request: "Spiritual growth", date: "2024-01-20" },
-    { name: "Tom Brown", request: "Financial breakthrough", date: "2024-01-20" },
-  ];
-
-  const dailyVerse = {
-    verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",
-    reference: "John 3:16"
-  };
+  const theme = useTheme();
 
   const statistics = [
     { name: "Articles", count: 150, icon: <FaBookOpen size={40} color="#4caf50" /> },
     { name: "Categories", count: 25, icon: <FaList size={40} color="#2196f3" /> },
     { name: "Prayer Requests", count: 45, icon: <FaPray size={40} color="#f44336" /> },
-    { name: "Online Services", count: 12, icon: <FaChurch size={40} color="#ff9800" /> }
+    { name: "Online Services", count: 12, icon: <FaChurch size={40} color="#ff9800" /> },
   ];
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  const prayerRequests = [
+    { name: "John Doe", request: "Healing for my mother", date: "2024-01-20" },
+    { name: "Jane Smith", request: "Guidance for career decision", date: "2024-01-20" },
+  ];
+
+  const dailyVerse = {
+    verse: "For God so loved the world that he gave his one and only Son...",
+    reference: "John 3:16",
   };
 
+  const handleChangePage = (event, newPage) => setPage(newPage);
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-  // Utilisation du hook useTheme pour accéder au thème actuel
-  const theme = useTheme();
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: theme.palette.background.default }}>
@@ -83,6 +76,9 @@ const ChristianDashboard = () => {
       </AppBar>
 
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Welcome, {user.name} ({user.role})
+        </Typography>
         <Grid container spacing={3}>
           {statistics.map((stat, index) => (
             <Grid item xs={12} sm={3} key={index}>
@@ -139,46 +135,23 @@ const ChristianDashboard = () => {
               </List>
             </Paper>
           </Grid>
-
-          <Grid item xs={12}>
-            <Paper sx={{ width: "100%" }}>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Service Name</TableCell>
-                      <TableCell>Time</TableCell>
-                      <TableCell>Platform</TableCell>
-                      <TableCell>Status</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {[{ name: "Morning Prayer", time: "7:00 AM", platform: "Zoom", status: "Live" },
-                      { name: "Bible Study", time: "6:00 PM", platform: "YouTube", status: "Upcoming" },
-                      { name: "Youth Service", time: "4:00 PM", platform: "Facebook", status: "Completed" }].map((row, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{row.name}</TableCell>
-                          <TableCell>{row.time}</TableCell>
-                          <TableCell>{row.platform}</TableCell>
-                          <TableCell>
-                            <Chip
-                              label={row.status}
-                              color={row.status === "Live" ? "success" :
-                                row.status === "Upcoming" ? "warning" : "default"}
-                              size="small"
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Grid>
         </Grid>
       </Container>
     </Box>
   );
-};
+}
 
-export default ChristianDashboard;
+// Protéger la page avec `getServerSideProps`
+export async function getServerSideProps({ req }) {
+  try {
+    const cookies = parse(req.headers.cookie || "");
+    if (!cookies.authToken) {
+      throw new Error("No authentication token found");
+    }
+
+    const decoded = jwt.verify(cookies.authToken, process.env.JWT_SECRET);
+    return { props: { user: decoded } };
+  } catch (error) {
+    return { redirect: { destination: "/admin/", permanent: false } };
+  }
+}
