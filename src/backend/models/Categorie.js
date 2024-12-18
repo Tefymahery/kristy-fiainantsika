@@ -1,11 +1,12 @@
 // backend/models/Categorie.js
 const mongoose = require('mongoose');
 
+// Définir un schéma pour la catégorie
 const categorySchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
-    unique: true, // Ajout de l'option unique pour garantir l'unicité
+    required: [true, 'Le nom de la catégorie est obligatoire'],
+    unique: true, // Assurer l'unicité du nom
   },
   description: {
     type: String,
@@ -17,17 +18,26 @@ const categorySchema = new mongoose.Schema({
   },
   parentCategory: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category', // Référence à une autre catégorie
+    ref: 'Category', // Référence à une autre catégorie pour les sous-catégories
     default: null
   },
   isActive: {
     type: Boolean,
-    default: true, // Valeur par défaut : actif
+    default: true, // La catégorie est active par défaut
   },
   icon: {
-    type: String,  // On peut stocker l'URL de l'icône ou le nom d'une icône si tu utilises une bibliothèque comme FontAwesome
-    default: 'default-icon',  // Par défaut, on peut mettre une icône générique
+    type: String,  // Stockage d'URL ou de nom d'icône
+    default: 'default-icon',  // Icône par défaut
   }
 });
 
-module.exports = mongoose.model('Category', categorySchema);
+// Vérification si le modèle existe déjà pour éviter l'erreur "OverwriteModelError"
+let Category;
+try {
+  Category = mongoose.model('Category');
+} catch (error) {
+  // Si le modèle n'existe pas, le créer
+  Category = mongoose.model('Category', categorySchema);
+}
+
+module.exports = Category;

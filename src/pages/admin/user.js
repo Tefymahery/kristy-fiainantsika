@@ -223,7 +223,7 @@ const AdminUserPage = () => {
 
       {/* Confirmation Dialog */}
       <Dialog open={isConfirmDialogOpen} onClose={handleCancelConfirm}>
-        <DialogTitle>Confirmer l'action</DialogTitle>
+        <DialogTitle>Confirmer l action</DialogTitle>
         <DialogContent>
           <Typography>Êtes-vous sûr de vouloir continuer ?</Typography>
         </DialogContent>
