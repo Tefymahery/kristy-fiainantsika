@@ -39,7 +39,8 @@ const AdminCategories = () => {
     description: '',
     parentCategory: null,
     articleCount: 0,
-    isActive: true
+    isActive: true,
+    image: '',
   });
   const [editCategory, setEditCategory] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
@@ -72,7 +73,7 @@ const AdminCategories = () => {
             setCategories(response.data);
           })
           .catch(error => console.error("Erreur lors de la mise à jour des catégories:", error));
-        setNewCategory({ name: '', description: '', parentCategory: null, articleCount: 0, isActive: true });
+        setNewCategory({ name: '', description: '', parentCategory: null, articleCount: 0, isActive: true, image: '' });
         setShowDialog(false);
       })
       .catch(error => console.error("Erreur lors de la création de la catégorie:", error));
@@ -161,12 +162,12 @@ const AdminCategories = () => {
       )
       .map(category => (
         <div key={category._id} style={{ marginLeft: depth * 16, marginBottom: 8 }}>
-          <Typography variant="h6" style={{ fontWeight: 'bold', color: '#4a4a4a' }}>
+          <Typography variant="h6">
             {category.name}
           </Typography>
   
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <Tooltip title="Modifier la catégorie">
+            <Tooltip title="Modifier la catégorie" arrow>
               <IconButton
                 size="small"
                 color="warning"
@@ -178,7 +179,7 @@ const AdminCategories = () => {
                 <FaPen />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Supprimer la catégorie">
+            <Tooltip title="Supprimer la catégorie" arrow> 
               <IconButton
                 size="small"
                 color="error"
@@ -202,12 +203,24 @@ const AdminCategories = () => {
   
 
   return (
-    <Box sx={{ p: 4 }}>
+    <Box sx={{
+      p: 4,
+      backgroundColor: (theme) => theme.palette.background.default, // Fond adapté au thème
+      color: (theme) => theme.palette.text.primary, // Texte adapté au thème
+      border: (theme) => `1px solid ${theme.palette.divider}`, // Bordure adaptée au thème
+      boxShadow: (theme) => theme.shadows[1], // Ombre adaptée au thème
+    }}>
       <Card>
         <CardHeader
-          sx={{ backgroundColor: '#f0f0f0', p: 2 }}
+          sx={{ 
+               p: 2,
+          }}
           title={
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center' 
+              }}>
               <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
                 Gestion des Catégories
               </Typography>
@@ -240,11 +253,29 @@ const AdminCategories = () => {
       </Card>
 
       {/* Dialog for creating/editing category */}
-      <Dialog open={showDialog} onClose={() => setShowDialog(false)}>
+      <Dialog 
+        open={showDialog} 
+        onClose={() => setShowDialog(false)}
+        PaperProps={{
+          sx: {
+            width: "600px", // Largeur spécifique
+            maxWidth: "90%", // Largeur maximale basée sur le viewport
+            height: "80vh", // Hauteur relative à la taille du viewport
+          },
+        }}
+        >
         <DialogTitle>
           {editCategory ? 'Modifier la catégorie' : 'Créer une nouvelle catégorie'}
         </DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <DialogContent sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'stretch',
+          overflow: 'auto',
+          gap: 2,
+          padding: 3
+          }}>
+          
           <TextField
             label="Nom de la catégorie"
             value={editCategory ? editCategory.name : newCategory.name}
@@ -265,6 +296,7 @@ const AdminCategories = () => {
                 : setNewCategory({ ...newCategory, description: e.target.value })
             }
           />
+
           <TextField
             label="Nombre d'articles"
             type="number"
@@ -275,9 +307,24 @@ const AdminCategories = () => {
                 : setNewCategory({ ...newCategory, articleCount: e.target.value })
             }
           />
+
+          <TextField
+            label="Image URL"
+            variant="outlined"
+            fullWidth
+            value={editCategory ? editCategory.image : newCategory.image}
+            onChange={(e) =>
+              editCategory
+                ? setEditCategory({ ...editCategory, image: e.target.value })
+                : setNewCategory({ ...newCategory, image: e.target.value })
+            }
+          />
+
+
           <FormControl>
             <InputLabel>Catégorie parente</InputLabel>
             <Select
+              label="Catégorie parente"
               value={editCategory ? (editCategory.parentCategory || '') : (newCategory.parentCategory || '')}
               onChange={(e) =>
                 editCategory

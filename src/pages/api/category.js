@@ -4,7 +4,7 @@ import Category from '../../backend/models/Categorie';
 // Créer une nouvelle catégorie
 const createCategory = async (req, res) => {
   try {
-    const { name, description, articleCount, parentCategory, isActive, icon } = req.body;
+    const { name, description, articleCount, parentCategory, isActive, image } = req.body;
 
     // Vérification si une catégorie avec le même nom existe déjà
     const existingCategory = await Category.findOne({ name });
@@ -19,7 +19,7 @@ const createCategory = async (req, res) => {
       articleCount,
       parentCategory: parentCategory || null,
       isActive: isActive !== undefined ? isActive : true, // Actif par défaut
-      icon: icon || 'Bars4Icon', // Icône par défaut
+      image: image || 'default-image-url', // URL de l'image par défaut
     });
 
     await newCategory.save();
@@ -43,11 +43,11 @@ const getAllCategories = async (req, res) => {
 const updateCategory = async (req, res) => {
   try {
     const { id } = req.query;
-    const { name, description, articleCount, parentCategory, isActive, icon } = req.body;
+    const { name, description, articleCount, parentCategory, isActive, image } = req.body;
 
     const updatedCategory = await Category.findByIdAndUpdate(
       id,
-      { name, description, articleCount, parentCategory, isActive, icon },
+      { name, description, articleCount, parentCategory, isActive, image },
       { new: true }
     );
 

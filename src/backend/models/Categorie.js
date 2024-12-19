@@ -25,9 +25,9 @@ const categorySchema = new mongoose.Schema({
     type: Boolean,
     default: true, // La catégorie est active par défaut
   },
-  icon: {
-    type: String,  // Stockage d'URL ou de nom d'icône
-    default: 'default-icon',  // Icône par défaut
+  image: {
+    type: String, // Stockage de l'URL de l'image
+    default: 'default-image-url', // Valeur par défaut si aucune image n'est fournie
   }
 });
 

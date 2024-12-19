@@ -7,7 +7,7 @@ const articleSchema = new mongoose.Schema({
   auteur: String,
   date_ajout: { type: Date, default: Date.now },
   image_mise_en_avant: String,
-  categorie: { type: mongoose.Schema.Types.ObjectId, ref: 'Categorie' },
+  categorie: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
   contenu: [
     {
       type: { type: String, enum: ['text', 'image'], required: true },
@@ -25,6 +25,7 @@ const articleSchema = new mongoose.Schema({
   price: { type: Number, default: 0 },  // Gratuit ou payant
 });
 
-const Article = mongoose.model('Article', articleSchema);
+// Vérifier si le modèle existe déjà pour éviter de le redéfinir
+const Article = mongoose.models.Article || mongoose.model('Article', articleSchema);
 
 module.exports = Article;

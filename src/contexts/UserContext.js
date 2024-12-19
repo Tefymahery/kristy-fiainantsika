@@ -12,16 +12,50 @@ export const UserProvider = ({ children }) => {
 
   // Charger les informations de l'utilisateur depuis les cookies (si présent)
   useEffect(() => {
-    const userName = Cookies.get("name");
-    const userRole = Cookies.get("role");
+    const validateToken = async () => {
+      const token = Cookies.get("authToken");
+      
+      if (!token) {
+        // Si aucun token, réinitialisez l'état utilisateur
+        setUser({ name: "", role: "" });
+        Cookies.remove("name");
+        Cookies.remove("role");
+        return;
+      }
 
-    if (userName && userRole) {
-      console.log("Cookies read:", { userName, userRole });
-      setUser({ name: userName, role: userRole });
-    } else {
-      setUser({ name: "", role: "" });  // Assurez-vous de réinitialiser l'état si les cookies sont vides
-    }
-  }, []);
+      try {
+        const response = await fetch("/api/auth/validate-token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        if (!response.ok) {
+          // Token invalide ou expiré
+          setUser({ name: "", role: "" });
+          Cookies.remove("name");
+          Cookies.remove("role");
+          Cookies.remove("authToken");
+
+          // Rediriger l'utilisateur vers la page de connexion
+          router.push("/admin"); // Redirection vers la page de connexion
+        }
+      } catch (error) {
+        console.error("Erreur lors de la validation du token:", error);
+        setUser({ name: "", role: "" });
+        Cookies.remove("name");
+        Cookies.remove("role");
+        Cookies.remove("authToken");
+
+        // Rediriger l'utilisateur en cas d'erreur critique
+        router.push("/admin");
+      }
+    };
+
+    validateToken();
+  }, []); // Ce useEffect est exécuté une seule fois lors du chargement du composant
 
   const login = (name, role) => {
     console.log("Login successful:", { name, role }); // Vérifiez que cette ligne s'exécute
@@ -43,10 +77,11 @@ export const UserProvider = ({ children }) => {
         "Content-Type": "application/json",
       },
     });
-     // Rediriger l'utilisateur vers la page d'accueil
-     router.push("/");  // Redirection vers la page d'accueil
+
+    // Rediriger l'utilisateur vers la page d'accueil
+    router.push("/");  // Redirection vers la page d'accueil
   };
-  
+
   return (
     <UserContext.Provider value={{ user, login, logout }}>
       {children}
